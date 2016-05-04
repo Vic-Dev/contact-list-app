@@ -34,10 +34,21 @@ class Contact
     # @param email [String] the contact's email
     def create(name, email)
       # TODO: Instantiate a Contact, add its data to the 'contacts.csv' file, and return it.
-      contact = Contact.new(name, email)
-      CSV.open('customers.csv', "a") do |csv|
-        csv << [contact.name, contact.email]
+      # If a user tries to input the the same email address for a new contact, output an error saying that the contact already exists and cannot be created.
+
+      if email_exists?(email)
+        "Error: contact already exists"
+      else
+        contact = Contact.new(name, email)
+        CSV.open('customers.csv', "a") do |csv|
+          csv << [contact.name, contact.email]
+        end
+        return "Added user."
       end
+    end
+
+    def email_exists?(email)
+      CSV.read('customers.csv').any? {|x| x.include? email}
     end
     
     # Find the Contact in the 'contacts.csv' file with the matching id.

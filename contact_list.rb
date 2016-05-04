@@ -25,7 +25,8 @@ class ContactList
     name = STDIN.gets.chomp
     puts "Please give me a valid email:"
     email = STDIN.gets.chomp
-    Contact.create(name, email)
+    created = Contact.create(name, email)
+    puts created
   elsif ARGV[0] == "show"
     puts "Please give me a contact ID"
     id = STDIN.gets.to_i
@@ -49,23 +50,3 @@ class ContactList
     puts "idk"
   end
 end
-
-# contact_list = ContactList.new(ARGV[0])
-
-# require 'csv'
-
-# array = []
-
-# thing = CSV.foreach('customers.csv', col_sep: ', ') do |name, email|
-#   email = " (#{email})"
-#   array << name + email
-# end
-
-# # p array.count
-
-# array.each_with_index do |row, index|
-#   puts "#{index + 1}: #{row}"
-# end
-
-# puts "----"
-# puts "#{array.count} records total"
