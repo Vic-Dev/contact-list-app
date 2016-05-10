@@ -5,10 +5,12 @@ require 'pry'
 class Contact
 
   attr_accessor :name, :email
+  attr_reader :id
   
-  def initialize(name, email)
+  def initialize(name, email, id=nil)
     @name = name
     @email = email
+    @id = id
   end
 
   class << self
@@ -16,9 +18,7 @@ class Contact
     def connection
       PG.connect(
         host: 'localhost',
-        dbname: 'contact_list',
-        user: 'development',
-        password: 'development'
+        dbname: 'contact_list'
       )
     end
 
@@ -31,34 +31,31 @@ class Contact
     end
 
     def create(name, email)
-      # if email_exists?(email)
-      #   "Error: contact already exists"
-      # else
+      if email_exists?(email)
+        "Error: contact already exists"
+      else
         contact = Contact.new(name, email)
         contact.save
-      # end
+      end
     end
 
     def email_exists?(email)
-      CSV.read('customers.csv').any? {|x| x.include? email}
+      # CSV.read('customers.csv').any? {|x| x.include? email}
+      result = connection.exec_params('SELECT * FROM contacts WHERE email = $1', [email])
+      if result.num_tuples.zero?
+        false
+      else
+        true
+      end
     end
     
     def find(id)
       result = connection.exec_params('SELECT * FROM contacts WHERE id = $1::int;', [id])
       c = result[0]
-      contact = Contact.new(c["name"], c["email"])
+      p contact = Contact.new(c["name"], c["email"], c["id"])
     end
     
     def search(term)
-      # array = []
-      # search = CSV.read('customers.csv')
-      # thing1 = search.each do |contact| 
-      #   contact_string = contact.join(" ")
-      #   if contact_string.downcase.include? term.downcase
-      #     array << contact
-      #   end
-      # end      
-      # array
       result = connection.exec_params('SELECT * FROM contacts WHERE name LIKE (\'%\' || $1 || \'%\') OR email LIKE (\'%\' || $1 || \'%\');', [term]) do |results| 
         results.map do |c|
           Contact.new(c["name"], c["email"])
@@ -67,8 +64,22 @@ class Contact
     end
   end
 
+  def saved?
+    self.id ? true : false
+  end
+
   def save
-    Contact.connection.exec_params('INSERT INTO contacts (name, email) VALUES ($1, $2) RETURNING id', [@name, @email])
+    if saved?
+      Contact.connection.exec_params('UPDATE contacts SET name=$1, email=$2 WHERE id=$3', [name, email, id])
+    else
+      Contact.connection.exec_params('INSERT INTO contacts (name, email) VALUES ($1, $2) RETURNING id', [@name, @email]) do |results|
+        @id = results[0]["id"]
+      end
+    end
+  end
+
+  def destroy
+    Contact.connection.exec_params('DELETE FROM contacts WHERE id = $1::int', [@id])
   end
 
 end

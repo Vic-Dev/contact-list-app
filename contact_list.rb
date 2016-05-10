@@ -28,7 +28,7 @@ class ContactList
     created = Contact.create(name, email)
     puts created
   elsif ARGV[0] == "show"
-    puts "Please give me a contact ID"
+    puts "Please give me a contact ID:"
     id = STDIN.gets.to_i
     contact = Contact.find(id)
     if contact.nil? || id < 1
@@ -46,6 +46,27 @@ class ContactList
     end
     puts "---"
     puts "#{search_results.length} record total"
+  elsif ARGV[0] == "update"
+    puts "Please enter a contact ID:"
+    id = STDIN.gets.to_i
+    puts "Please enter a new name:"
+    new_name = STDIN.gets.chomp
+    puts "Please enter a new email:"
+    new_email = STDIN.gets.chomp
+    contact = Contact.find(id)
+    contact.name = new_name
+    contact.email = new_email
+    contact.save
+  elsif ARGV[0] == "destroy"
+    puts "Please enter a contact ID:"
+    id = STDIN.gets.to_i
+    puts "Are you sure?"
+    answer = STDIN.gets.chomp
+    answer.downcase!
+    if answer == "y" || answer == "yes"
+      contact = Contact.find(id)
+      contact.destroy
+    end
   else
     puts "idk"
   end
