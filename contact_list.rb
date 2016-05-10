@@ -42,7 +42,7 @@ class ContactList
     term = STDIN.gets.chomp
     search_results = Contact.search(term)
     search_results.each_with_index do |row, index|
-      puts "#{index + 1}: #{row[0]} (#{row[1]})"
+      puts "#{index + 1}: #{row.name} (#{row.email})"
     end
     puts "---"
     puts "#{search_results.length} record total"

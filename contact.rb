@@ -44,20 +44,26 @@ class Contact
     end
     
     def find(id)
-      id_index = id - 1
-      Contact.all[id_index]
+      result = connection.exec_params('SELECT * FROM contacts WHERE id = $1::int;', [id])
+      c = result[0]
+      contact = Contact.new(c["name"], c["email"])
     end
     
     def search(term)
-      array = []
-      search = CSV.read('customers.csv')
-      thing1 = search.each do |contact| 
-        contact_string = contact.join(" ")
-        if contact_string.downcase.include? term.downcase
-          array << contact
+      # array = []
+      # search = CSV.read('customers.csv')
+      # thing1 = search.each do |contact| 
+      #   contact_string = contact.join(" ")
+      #   if contact_string.downcase.include? term.downcase
+      #     array << contact
+      #   end
+      # end      
+      # array
+      result = connection.exec_params('SELECT * FROM contacts WHERE name LIKE (\'%\' || $1 || \'%\') OR email LIKE (\'%\' || $1 || \'%\');', [term]) do |results| 
+        results.map do |c|
+          Contact.new(c["name"], c["email"])
         end
-      end      
-      array
+      end
     end
   end
 
