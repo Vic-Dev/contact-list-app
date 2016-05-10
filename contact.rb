@@ -23,12 +23,6 @@ class Contact
     end
 
     def all
-      # array = []
-      # CSV.foreach('customers.csv') do |name, email|
-      #   array << Contact.new(name, email)
-      # end
-      # array
-      # p connection.exec('SELECT * FROM contacts;')
       connection.exec('SELECT * FROM contacts;') do |results|
         results.map do |c|
           Contact.new(c["name"], c["email"])
@@ -37,15 +31,12 @@ class Contact
     end
 
     def create(name, email)
-      if email_exists?(email)
-        "Error: contact already exists"
-      else
+      # if email_exists?(email)
+      #   "Error: contact already exists"
+      # else
         contact = Contact.new(name, email)
-        CSV.open('customers.csv', "a") do |csv|
-          csv << [contact.name, contact.email]
-        end
-        return "Added user."
-      end
+        contact.save
+      # end
     end
 
     def email_exists?(email)
@@ -68,9 +59,12 @@ class Contact
       end      
       array
     end
+  end
 
+  def save
+    Contact.connection.exec_params('INSERT INTO contacts (name, email) VALUES ($1, $2) RETURNING id', [@name, @email])
   end
 
 end
 
-# binding.pry
+binding.pry
