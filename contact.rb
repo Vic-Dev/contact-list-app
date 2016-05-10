@@ -40,7 +40,6 @@ class Contact
     end
 
     def email_exists?(email)
-      # CSV.read('customers.csv').any? {|x| x.include? email}
       result = connection.exec_params('SELECT * FROM contacts WHERE email = $1', [email])
       if result.num_tuples.zero?
         false

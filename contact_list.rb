@@ -10,10 +10,12 @@ class ContactList
 
   if ARGV.empty?
     puts "Here is a list of available commands:"
-    puts "    new    - Create a new contact"
-    puts "    list   - List all contacts"
-    puts "    show   - Show a contact"
-    puts "    search - Search contacts"
+    puts "    new     - Create a new contact"
+    puts "    list    - List all contacts"
+    puts "    show    - Show a contact"
+    puts "    search  - Search contacts"
+    puts "    update  - Update contact"
+    puts "    destroy - Destroy contact"
   elsif ARGV[0] == "list"
     Contact.all.each_with_index do |row, index|
       puts "#{index + 1}: #{row.name} (#{row.email})"
