@@ -1,5 +1,6 @@
 require 'csv'
 require 'pg'
+require 'pry'
 
 class Contact
 
@@ -14,19 +15,25 @@ class Contact
 
     def connection
       PG.connect(
-        host: 'localhost'
-        dbname: 'contact_list'
-        user: 'development'
+        host: 'localhost',
+        dbname: 'contact_list',
+        user: 'development',
         password: 'development'
       )
     end
 
     def all
-      array = []
-      CSV.foreach('customers.csv') do |name, email|
-        array << Contact.new(name, email)
+      # array = []
+      # CSV.foreach('customers.csv') do |name, email|
+      #   array << Contact.new(name, email)
+      # end
+      # array
+      # p connection.exec('SELECT * FROM contacts;')
+      connection.exec('SELECT * FROM contacts;') do |results|
+        results.map do |c|
+          Contact.new(c["name"], c["email"])
+        end
       end
-      array
     end
 
     def create(name, email)
@@ -65,3 +72,5 @@ class Contact
   end
 
 end
+
+# binding.pry
