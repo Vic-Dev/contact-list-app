@@ -1,4 +1,4 @@
-require_relative 'contact'
+require_relative 'setup.rb'
 
 # Interfaces between a user and their contact list. Reads from and writes to standard I/O.
 class ContactList
@@ -27,7 +27,7 @@ class ContactList
     name = STDIN.gets.chomp
     puts "Please give me a valid email:"
     email = STDIN.gets.chomp
-    created = Contact.create(name, email)
+    created = Contact.create(name: name, email: email)
     puts created
   elsif ARGV[0] == "show"
     puts "Please give me a contact ID:"
@@ -42,7 +42,7 @@ class ContactList
   elsif ARGV[0] == "search"
     puts "Please enter a search term:"
     term = STDIN.gets.chomp
-    search_results = Contact.search(term)
+    search_results = Contact.where("name LIKE ('%' || ? || '%') OR email LIKE ('%' || ? || '%')", term, term)
     search_results.each_with_index do |row, index|
       puts "#{index + 1}: #{row.name} (#{row.email})"
     end
